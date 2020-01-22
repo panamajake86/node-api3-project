@@ -6,7 +6,7 @@ router.post('/', (req, res) => {
   // do your magic!
 });
 
-router.post('/:id/posts', (req, res) => {
+router.post('/:id/posts', validatePost(), (req, res) => {
   // do your magic!
 });
 
