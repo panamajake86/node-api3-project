@@ -31,8 +31,6 @@ router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
         res.status(500).json({ message: 'Server error, try again later', err});
       })
   }
-
-
 });
 
 router.get('/', (req, res) => {
@@ -57,7 +55,6 @@ router.get('/:id', validateUserId, (req, res) => {
     } else {
       res.status(400).json({ message: "invalid user id" });
     }
-   
   })
     .catch(err => {
       res.status(500).json({ message: "exception", err })
@@ -66,14 +63,50 @@ router.get('/:id', validateUserId, (req, res) => {
 
 router.get('/:id/posts', validateUserId, (req, res) => {
   // do your magic!
+  const { id } = req.params;
+
+  User.getUserPosts(id)
+    .then(user =>{
+      res.status(200).json(user);
+    })
+    .catch(err => {
+      res.status(500).json({ message: 'Server error', err });
+    });
 });
 
 router.delete('/:id', validateUserId, (req, res) => {
   // do your magic!
+  const { id } = req.params;
+
+  User.remove(id)
+    .then(user => {
+      if (user) {
+        res.status(200).end();
+      } else {
+        res.status(404).json({ message: 'user id not found' });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ message: 'Server error', err });
+    });
 });
 
 router.put('/:id', validateUserId, (req, res) => {
   // do your magic!
+  const { id } = req.params;
+  const body = req.body;
+
+  User.update(id, body)
+    .then(user => {
+      if (user) {
+        res.status(200).json(body);
+      } else {
+        res.status(404).json({ message: 'user id not found' });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ message: 'Server error', err });
+    });
 });
 
 //custom middleware
@@ -114,16 +147,16 @@ function validateUser(req, res, next) {
 function validatePost(req, res, next) {
   // do your magic!
   const body = req.body;
-  const { name }  = body;
-  const { user_id} = body;
+  const text  = body.text;
+  const userId = body.user_id;
 
-  if (!cody) {
+  if (!body) {
     res.status(400).json({ message: 'missing body of post' });
   }
-  if (!name) {
+  if (!text) {
     res.status(400).json({ message: 'missing required name field' });
   }
-  if (!user_id) {
+  if (!userId) {
     res.status(400).json({ message: 'missing required name field' });
   }
 
